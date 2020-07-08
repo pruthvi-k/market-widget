@@ -42,10 +42,10 @@ export default function withSocketSubscription(WrappedComponent) {
         clearTimeout(connectInterval); // clear Interval on on open of websocket connection
       };
 
-      ws.onmessage = (message) => {
-        console.log("message---", JSON.parse(message.data));
-        this.setState({ data: message.data.data });
-      };
+      // ws.onmessage = (message) => {
+      //   console.log("message---", JSON.parse(message.data));
+      //   this.setState({ data: message.data });
+      // };
 
       // websocket onclose event listener
       ws.onclose = (e) => {
