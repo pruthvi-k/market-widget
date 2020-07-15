@@ -5,10 +5,11 @@ class MarketList extends Component {
     super(props);
     // const { websocket } = this.props;
     // console.log("websocket", websocket);
-    this.state = { data: [] };
+    // this.state = { data: this.props.data };
   }
 
   componentDidMount() {
+    console.log("componet did monu", this.props);
     this.getStockData();
   }
 
@@ -22,21 +23,24 @@ class MarketList extends Component {
       })
       .then((error) => alert(error));
   };
+
   render() {
-    const { data } = this.state;
-    console.log("data", data);
+    const { data } = this.props;
+    // console.log("data", data);
     return (
       <>
         <div className="market-list">List</div>
-        <ul>
-          {data.map((item) => (
-            <li key={item.s}>{item.s}</li>
-          ))}
-        </ul>
+        {data && (
+          <ul>
+            {data.map((item) => (
+              <li key={item.s}>{item.s}</li>
+            ))}
+          </ul>
+        )}
       </>
     );
   }
 }
 
-// export default withSocketSubscription(MarketList);
-export default MarketList;
+export default withSocketSubscription(MarketList);
+// export default MarketList;

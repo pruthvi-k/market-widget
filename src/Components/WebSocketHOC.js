@@ -5,18 +5,20 @@ export default function withSocketSubscription(WrappedComponent) {
   // ...and returns another component...
   return class extends React.Component {
     constructor(props) {
+      console.log("his function takes a component..");
       super(props);
 
       this.state = {
-        ws: null,
+        ws: this.connect(),
         data: [],
       };
+      // this.connect();
     }
 
     // single websocket instance for the own application and constantly trying to reconnect.
 
     componentDidMount() {
-      this.connect();
+      console.log("did mount");
     }
 
     timeout = 250; // Initial timeout duration as a class variable
@@ -29,6 +31,7 @@ export default function withSocketSubscription(WrappedComponent) {
       var ws = new WebSocket(
         "wss://stream.binance.com/stream?streams=!miniTicker@arr"
       );
+      console.log("connect called", ws);
       let that = this; // cache the this
       var connectInterval;
 
@@ -36,16 +39,16 @@ export default function withSocketSubscription(WrappedComponent) {
       ws.onopen = () => {
         console.log("connected websocket main component");
 
-        this.setState({ ws: ws });
+        // this.setState({ ws: ws });
 
         that.timeout = 250; // reset timer to 250 on open of websocket connection
         clearTimeout(connectInterval); // clear Interval on on open of websocket connection
       };
 
-      // ws.onmessage = (message) => {
-      //   console.log("message---", JSON.parse(message.data));
-      //   this.setState({ data: message.data });
-      // };
+      ws.onmessage = (message) => {
+        console.log("message---", JSON.parse(message.data));
+        this.setState({ data: JSON.parse(message.data) });
+      };
 
       // websocket onclose event listener
       ws.onclose = (e) => {
@@ -71,6 +74,7 @@ export default function withSocketSubscription(WrappedComponent) {
 
         ws.close();
       };
+      return ws;
     };
 
     /**
