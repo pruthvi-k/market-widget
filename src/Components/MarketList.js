@@ -10,16 +10,11 @@ function MarketList({ serverResponse, onTypeChange }) {
       <div className="market-list">List</div>
       {serverResponse && (
         <ul>
-          {serverResponse.data.map((item) => (
+          {Object.keys(serverResponse).map((item) => (
             <StockRow
-              key={item.s}
-              pair={item.s}
-              lastPrice={item.l}
-              change={item.c}
+              key={serverResponse[item].s}
+              stock={serverResponse[item]}
             ></StockRow>
-            // <li key={item.s} style={{ color: `${item.color}` }}>
-            //   {item.s} - <b>{item.c}</b>
-            // </li>
           ))}
         </ul>
       )}

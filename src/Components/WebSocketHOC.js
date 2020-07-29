@@ -6,7 +6,7 @@ export default function withSocketSubscription(WrappedComponent) {
     constructor(props) {
       super(props);
       this.state = {
-        data: null,
+        stock: null,
         ws: new WebSocket(
           "wss://stream.binance.com/stream?streams=!miniTicker@arr"
         ),
@@ -39,7 +39,7 @@ export default function withSocketSubscription(WrappedComponent) {
         // debugger;
         let newProducts = this.getNewProducts(serverData);
 
-        this.setState({ data: { data: newProducts } });
+        this.setState({ stock: newProducts });
         // console.log(Products);
       };
 
@@ -50,34 +50,52 @@ export default function withSocketSubscription(WrappedComponent) {
 
     getNewProducts = (serverData) => {
       let type = this.state.type;
-      console.log("type", type);
+      let prevData = this.state.stock;
       let newProducts = [];
+      // let newdata = serverData.data.filter((k) => k.s === item.s);
+      let newdata = [];
+      serverData.data.forEach((item) => {
+        newdata[item.s] = { ...item };
+      });
+      // console.log("this.state.stock", this.state.stock);
       this.state.products[type].forEach((item, index) => {
-        let newdata = serverData.data.filter((k) => k.s === item.s);
-        // console.log(
-        //   "newdata",
-        //   Products.data[index].s,
-        //   newdata.length > 0 ? Products.data[index].c + "" + newdata[0].c : ""
-        // );
-        if (newdata && newdata.length > 0) {
-          newProducts.push({
-            ...item,
-            ...newdata,
-            color:
-              this.state.products[type][index].c > newdata[0].c
-                ? "red"
-                : "green",
+        newProducts[item.s] = { ...item, history: [] };
+        if (newdata[item.s]) {
+          newProducts[item.s] = { ...newdata[item.s] };
+        }
+        if (prevData && prevData[item.s]) {
+          let history = prevData[item.s].history || [];
+          history.push({
+            time: new Date(),
+            value: item.c,
           });
+          newProducts[item.s].history = history.slice(-5);
         } else {
-          newProducts.push(this.state.products[type][index]);
+          newProducts[item.s].history = [];
         }
       });
+      // this.state.products[type].forEach((item, index) => {
+      //   if (this.state.stock && this.state.stock[item.s]) {
+      //     newProducts[item.s].history.push({
+      //       time: Date.now(),
+      //       value: newdata[item.s].s,
+      //     });
+      //   } else {
+      //     // newProducts[item.s] = {};
+      //     newProducts[item.s] = {
+      //       ...newdata[item.s],
+      //       history: [{ time: Date.now(), value: newdata[item.s].c }],
+      //     };
+      //   }
+      // });
+      console.log("newProducts", newProducts);
+
       return newProducts;
     };
     render() {
       return (
         <WrappedComponent
-          serverResponse={this.state.data}
+          serverResponse={this.state.stock}
           onTypeChange={this.state.setType}
           {...this.props}
         />
